@@ -1,6 +1,6 @@
 import React, { useState, useMemo, useEffect, useRef } from "react";
 import { initializeApp } from "firebase/app";
-import { getFirestore, collection, doc, getDocs, setDoc, addDoc, onSnapshot, updateDoc, deleteDoc, writeBatch } from "firebase/firestore";
+import { getFirestore, collection, doc, setDoc, addDoc, onSnapshot, updateDoc, deleteDoc, writeBatch } from "firebase/firestore";
 
 // =============================================================================
 // FIREBASE CONFIG — your keys
@@ -19,7 +19,6 @@ const db = getFirestore(firebaseApp);
 
 // Firestore helpers
 const col = name => collection(db, name);
-const saveDoc = (colName, id, data) => setDoc(doc(db, colName, String(id)), data);
 const delDoc  = (colName, id) => deleteDoc(doc(db, colName, String(id)));
 const updDoc  = (colName, id, data) => updateDoc(doc(db, colName, String(id)), data);
 
@@ -27,7 +26,6 @@ const updDoc  = (colName, id, data) => updateDoc(doc(db, colName, String(id)), d
 // CONSTANTS
 // =============================================================================
 const WA_NUMBER   = "244933929233";
-const OWNER_EMAIL = "menamart.angola@gmail.com";
 const MOV         = 500_000;
 const APP_VERSION = "4.0.0";
 const MAX_FAILED_ATTEMPTS = 3;
