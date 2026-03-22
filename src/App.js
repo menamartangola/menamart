@@ -57,6 +57,7 @@ const PAYMENT_METHODS = [
 ];
 
 const LOGO_SRC = "https://i.ibb.co/N6M95FmB/logo.jpeg";
+
 const SEED_PRODUCTS = [
   { id:"p1",  name:"Arroz Carolino",      sub:"Saco 25kg",     category:"Arroz",       costPrice:8500,  sellingPrice:12500, stock:true, img:"https://images.unsplash.com/photo-1586201375761-83865001e31c?w=400&q=80", desc:"Arroz carolino de grão longo, ideal para hotelaria e restauração. Grão firme após cozedura." },
   { id:"p2",  name:"Frango Inteiro",      sub:"Por kg",        category:"Carnes",      costPrice:5500,  sellingPrice:9000,  stock:true, img:"https://images.unsplash.com/photo-1604503468506-a8da13d82791?w=400&q=80", desc:"Frango fresco inteiro certificado, entregue em caixa refrigerada." },
@@ -1904,7 +1905,5 @@ export default function App() {
         </div>
       )}
     </>
-  );
-}
   );
 }
