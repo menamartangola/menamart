@@ -18,7 +18,7 @@ const delDoc  = (colName, id) => deleteDoc(doc(db, colName, String(id)));
 const updDoc  = (colName, id, data) => updateDoc(doc(db, colName, String(id)), data);
 
 const WA_NUMBER   = "244933929233";
-const MOV         = 500_000;
+const MOV         = 200_000;
 const APP_VERSION = "5.0.0";
 const MAX_FAILED_ATTEMPTS = 3;
 const CREDIT_METHODS = ["credit_week", "credit_month"];
@@ -132,7 +132,7 @@ body{font-family:var(--font-body);background:var(--off-white);color:var(--ink);-
 .nav-top{height:62px;padding:0 20px;display:flex;align-items:center;gap:12px}
 .nav-logo{display:flex;align-items:center;gap:8px;cursor:pointer;flex-shrink:0;text-decoration:none}
 .nav-logo img{height:38px;width:auto;object-fit:contain}
-.nav-brand{font-family:var(--font-display);font-size:20px;letter-spacing:-.02em;font-weight:800}
+.nav-brand{font-family:var(--font-display);font-size:24px;letter-spacing:-.02em;font-weight:800}
 .nav-brand-mena{color:#7dd87d}.nav-brand-mart{color:#ff8040}
 /* FIX #7: Center search bar */
 .nav-search{flex:1;max-width:600px;display:flex;background:rgba(255,255,255,.12);border-radius:9px;overflow:hidden;border:1px solid rgba(255,255,255,.18);transition:border-color .18s}
@@ -651,7 +651,7 @@ function NavBar({ page, goTo, currentUser, cartCount=0, onCartOpen, onSearch, se
       <div className="nav-top">
         {/* Logo left */}
         <div className="nav-logo" onClick={()=>goTo("home")}>
-          <Logo height={36} />
+          <Logo height={48} />
           <span className="nav-brand"><span className="nav-brand-mena">Mena</span><span className="nav-brand-mart">mart</span></span>
         </div>
         {/* Search center */}
@@ -712,7 +712,7 @@ function Footer({ goTo, onSecretClick }) {
             <span className="footer-link">📧 menamart.angola@gmail.com</span>
             <span className="footer-link">💬 +244 933 929 233</span>
             <span className="footer-link">📍 Rua de Benguela, São Paulo, Luanda</span>
-            <span className="footer-link">🕐 07:00–18:00 (Seg–Sex)</span>
+            <span className="footer-link">🕐 07:00–18:00 (Seg–Sáb)</span>
           </div>
         </div>
         <hr className="footer-divider" />
@@ -894,7 +894,7 @@ function PageContacto({ goTo }) {
         <h1 className="hero-title" style={{fontSize:"clamp(24px,4vw,40px)"}}>Fale connosco</h1>
       </div>
       <div className="section" style={{maxWidth:860}}>
-        <div style={{display:"grid",gridTemplateColumns:"1fr 1.3fr",gap:20,alignItems:"start"}}>
+        <div style={{display:"grid",gridTemplateColumns:"repeat(auto-fit,minmax(280px,1fr))",gap:20,alignItems:"start"}}>
           <div style={{display:"flex",flexDirection:"column",gap:11}}>
             {[{icon:"💬",t:"WhatsApp",v:"+244 933 929 233"},{icon:"📧",t:"Email",v:"menamart.angola@gmail.com"},{icon:"📍",t:"Localização",v:"Rua de Benguela, São Paulo, Luanda"},{icon:"🕐",t:"Horário",v:"07:00 – 18:00 (Seg–Sex)"}].map((c,i)=>(
               <div key={i} style={{background:"#fff",borderRadius:10,padding:14,boxShadow:"var(--shadow-sm)",border:"1px solid var(--border)",display:"flex",gap:11}}>
