@@ -478,9 +478,9 @@ tr:hover td{background:#fafcfa}
 }
 @media(max-width:640px){
   html,body{overflow-x:hidden !important}
-  .nav-top{padding:0 12px;height:54px}
+  .nav-top{padding:0 12px;height:auto;flex-wrap:wrap;padding-top:8px;padding-bottom:8px;gap:8px}
   .nav-brand{font-size:16px}
-  .nav-search{display:none}
+  .nav-search{display:flex;margin:0 8px}
   .hero-wrap{padding:40px 16px 32px}
   .hero-title{font-size:clamp(22px,7vw,32px) !important}
   .hero-cta-row{flex-direction:column;align-items:center}
