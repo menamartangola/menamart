@@ -651,7 +651,7 @@ function NavBar({ page, goTo, currentUser, cartCount=0, onCartOpen, onSearch, se
       <div className="nav-top">
         {/* Logo left */}
         <div className="nav-logo" onClick={()=>goTo("home")}>
-          <Logo height={48} />
+          <Logo height={56} />
           <span className="nav-brand"><span className="nav-brand-mena">Mena</span><span className="nav-brand-mart">mart</span></span>
         </div>
         {/* Search center */}
@@ -695,7 +695,7 @@ function Footer({ goTo, onSecretClick }) {
         <div className="footer-grid">
           <div>
             <div className="footer-brand" onClick={onSecretClick}>
-              <Logo height={30} />
+              <Logo height={44} />
               <span className="footer-brand-name">Mena<span>mart</span></span>
             </div>
             <p className="footer-desc">Plataforma B2B de abastecimento alimentar para o sector HORECA em Luanda, Angola.</p>
@@ -777,7 +777,7 @@ function PublicLanding({ goTo }) {
   return (
     <div>
       <div className="hero-wrap">
-        <Logo height={64} style={{display:"block",margin:"0 auto 20px",opacity:.9}} />
+        <Logo height={90} style={{display:"block",margin:"0 auto 20px",opacity:.9}} />
         <div className="hero-badge">🌱 Plataforma B2B · Luanda, Angola</div>
         <h1 className="hero-title">O abastecimento<br /><em>alimentar</em> que o<br />seu negócio merece</h1>
         <p className="hero-sub">Fornecemos hotéis, restaurantes e catering com produtos de qualidade. Acesso exclusivo para empresas verificadas.</p>
