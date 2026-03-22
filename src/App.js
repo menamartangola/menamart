@@ -129,13 +129,14 @@ body{font-family:var(--font-body);background:var(--off-white);color:var(--ink);-
 
 /* FIX #7: Amazon-style navbar */
 .nav{position:sticky;top:0;z-index:200;background:#0c1a0c;border-bottom:1px solid rgba(255,255,255,.06);box-shadow:0 2px 16px rgba(0,0,0,.25)}
-.nav-top{height:62px;padding:0 20px;display:flex;align-items:center;gap:12px}
+.nav-top{height:auto;padding:8px 20px;display:flex;align-items:center;gap:12px;flex-wrap:wrap}
 .nav-logo{display:flex;align-items:center;gap:8px;cursor:pointer;flex-shrink:0;text-decoration:none}
 .nav-logo img{height:38px;width:auto;object-fit:contain}
 .nav-brand{font-family:var(--font-display);font-size:24px;letter-spacing:-.02em;font-weight:800}
 .nav-brand-mena{color:#7dd87d}.nav-brand-mart{color:#ff8040}
 /* FIX #7: Center search bar */
-.nav-search{flex:1;max-width:800px;margin:0 auto;display:flex;background:#fff;border-radius:4px;overflow:hidden;border:2px solid #EF9F27;transition:border-color .18s}.nav-search:focus-within{border-color:rgba(125,216,125,.5)}
+.nav-search{flex:1;max-width:800px;margin:0 auto;display:flex;background:#fff;border-radius:4px;overflow:hidden;border:2px solid #EF9F27;transition:border-color .18s}
+@media(max-width:860px){.nav-search{order:3;flex:0 0 100%;margin:0 0 8px 0;max-width:100%}.nav-top{flex-wrap:wrap}}.nav-search:focus-within{border-color:rgba(125,216,125,.5)}
 .nav-search input{flex:1;padding:10px 16px;border:none;background:#fff;font-family:var(--font-body);font-size:15px;color:#0c1a0c;outline:none}
 .nav-search input::placeholder{color:#999}
 .nav-search-btn{background:#EF9F27;border:none;padding:0 22px;cursor:pointer;font-size:18px;color:#fff;transition:background .18s}
