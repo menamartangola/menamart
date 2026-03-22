@@ -135,7 +135,7 @@ body{font-family:var(--font-body);background:var(--off-white);color:var(--ink);-
 .nav-brand{font-family:var(--font-display);font-size:24px;letter-spacing:-.02em;font-weight:800}
 .nav-brand-mena{color:#7dd87d}.nav-brand-mart{color:#ff8040}
 /* FIX #7: Center search bar */
-.nav-search{flex:1;max-width:600px;display:flex;background:rgba(255,255,255,.12);border-radius:9px;overflow:hidden;border:1px solid rgba(255,255,255,.18);transition:border-color .18s}
+.nav-search{flex:1;max-width:700px;margin:0 auto;display:flex;background:rgba(255,255,255,.12);border-radius:9px;overflow:hidden;border:1px solid rgba(255,255,255,.18);transition:border-color .18s}
 .nav-search:focus-within{border-color:rgba(125,216,125,.5)}
 .nav-search input{flex:1;padding:10px 16px;border:none;background:none;font-family:var(--font-body);font-size:14px;color:#fff;outline:none}
 .nav-search input::placeholder{color:rgba(255,255,255,.4)}
