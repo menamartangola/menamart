@@ -423,25 +423,6 @@ tr:hover td{background:#fafcfa}
 .loading-spinner{width:40px;height:40px;border:3px solid rgba(125,216,125,.2);border-top-color:#7dd87d;border-radius:50%;animation:spin .8s linear infinite}
 @keyframes spin{to{transform:rotate(360deg)}}
 .loading-text{font-family:var(--font-body);font-size:13px;color:rgba(255,255,255,.5);font-weight:300}
-/* Mobile bottom bar */
-.mobile-bottom-bar{display:none;position:fixed;bottom:0;left:0;right:0;background:#0c1a0c;border-top:1px solid rgba(255,255,255,.08);padding:8px 16px;z-index:150;gap:8px;align-items:center;justify-content:space-between}
-.mobile-bottom-bar-total{font-family:var(--font-display);font-size:16px;color:#7dd87d;font-weight:700}
-.mobile-bottom-bar-items{font-size:11px;color:rgba(255,255,255,.5);font-family:var(--font-body)}
-.mobile-bottom-bar-btn{background:var(--green);color:#fff;border:none;border-radius:9px;padding:10px 20px;font-family:var(--font-body);font-weight:800;font-size:13px;cursor:pointer;display:flex;align-items:center;gap:7px}
-/* Pagination */
-.pagination{display:flex;align-items:center;justify-content:center;gap:8px;padding:24px 0 8px}
-.page-btn{padding:7px 14px;border-radius:8px;border:1.5px solid var(--border);background:var(--white);font-family:var(--font-body);font-weight:600;font-size:13px;cursor:pointer;transition:all .15s;color:var(--ink-soft)}
-.page-btn:hover{border-color:var(--green);color:var(--green)}
-.page-btn.active{background:var(--green);border-color:var(--green);color:#fff}
-.page-btn:disabled{opacity:.4;cursor:not-allowed}
-/* Order code box */
-.order-code-box{background:#0c1a0c;border-radius:12px;padding:16px 20px;margin-bottom:14px;text-align:center}
-.order-code-label{font-family:var(--font-body);font-size:10px;font-weight:700;color:rgba(255,255,255,.4);letter-spacing:.14em;text-transform:uppercase;margin-bottom:6px}
-.order-code-value{font-family:monospace;font-size:26px;font-weight:900;color:#7dd87d;letter-spacing:.1em}
-.order-code-copy-btn{margin-top:10px;background:rgba(125,216,125,.15);border:1px solid rgba(125,216,125,.25);color:#7dd87d;border-radius:7px;padding:6px 14px;font-family:var(--font-body);font-size:12px;font-weight:700;cursor:pointer;transition:all .15s}
-.order-code-copy-btn:hover{background:rgba(125,216,125,.25)}
-/* Email notification badge */
-.email-sent-badge{background:var(--green-pale);border:1px solid var(--green-pale2);border-radius:8px;padding:8px 12px;font-size:12px;color:var(--green);display:flex;align-items:center;gap:7px;margin-bottom:10px}
 @media(max-width:900px){
   .founders-grid{grid-template-columns:1fr}
   .admin-wrap{grid-template-columns:1fr}
@@ -459,9 +440,6 @@ tr:hover td{background:#fafcfa}
 @media(max-width:640px){
   .nav{padding:0 12px;height:56px}
   .nav-brand{font-size:18px}
-  .nav-brand-desktop{display:none}
-  .user-pill-name{display:none}
-  .cart-label{display:none}
   .hero-wrap{padding:44px 16px 36px}
   .hero-title{font-size:clamp(24px,7.5vw,34px)!important}
   .hero-cta-row{flex-direction:column;align-items:center}
@@ -479,7 +457,6 @@ tr:hover td{background:#fafcfa}
   .team-group-photo{height:210px}
   .future-grid{grid-template-columns:1fr}
   .partners-grid{grid-template-columns:repeat(2,1fr);gap:10px}
-  .mobile-bottom-bar{display:flex!important}
 }
 `;
 
@@ -550,7 +527,7 @@ function NavBar({ page, goTo, currentUser, cartCount=0, onCartOpen, onLogout }) 
     <nav className="nav">
       <div className="nav-logo" onClick={()=>goTo("home")}>
         <Logo height={34} />
-        <span className="nav-brand-desktop"><BrandName /></span>
+        <BrandName />
       </div>
       <div className="nav-links">
         <button className={`nav-btn${page==="sobre"?" active":""}`} onClick={()=>goTo("sobre")}>Sobre Nós</button>
@@ -560,8 +537,9 @@ function NavBar({ page, goTo, currentUser, cartCount=0, onCartOpen, onLogout }) 
       <div className="nav-right">
         {currentUser ? (
           <>
-            <span className="user-pill" onClick={()=>goTo("account")}>👤 <span className="user-pill-name">{currentUser.businessName}</span></span>
-            <button className="cart-btn" onClick={onCartOpen}>🛒 <span className="cart-label">Cesto </span>{cartCount>0&&<span className="cart-count">{cartCount}</span>}</button>
+            <span className="user-pill" onClick={()=>goTo("account")}>👤 {currentUser.businessName}</span>
+            <button className="cart-btn" onClick={onCartOpen}>🛒 Cesto {cartCount>0&&<span className="cart-count">{cartCount}</span>}</button>
+            <button className="btn-outline-nav" onClick={onLogout}>Sair</button>
           </>
         ) : (
           <button className="btn-outline-nav" onClick={()=>goTo("login")}>Entrar →</button>
@@ -905,50 +883,30 @@ function PageLogin({ clients, onLogin, onClose }) {
 }
 
 // =============================================================================
-// BUYER CATALOG — v5: catalog-first, pagination, order code, email notification
+// BUYER CATALOG
 // =============================================================================
-const PAGE_SIZE = 20;
-
 function BuyerCatalog({ products, categories, currentUser, settings, onNewOrder, goTo, onLogout, onSecretClick }) {
   const [cart,setCart]=useState([]);
   const [cartOpen,setCartOpen]=useState(false);
   const [activeCat,setActiveCat]=useState("Todos");
   const [search,setSearch]=useState("");
+  const [view,setView]=useState("home");
   const [success,setSuccess]=useState(null);
   const [payMethod,setPayMethod]=useState(settings?.defaultMethod||"on_delivery");
-  const [page,setPage]=useState(1);
-  const [copied,setCopied]=useState(false);
 
   const creditApproved=(settings?.creditClients||[]).includes(currentUser.id||currentUser._id);
   const acceptedMethods=(settings?.acceptedMethods||["on_delivery"]).filter(m=>CREDIT_METHODS.includes(m)?creditApproved:true);
-
-  const filtered=useMemo(()=>{
-    const q=search.trim().toLowerCase();
-    return products.filter(p=>{
-      const catOk=activeCat==="Todos"||p.category===activeCat;
-      if(!q)return catOk;
-      return catOk&&(p.name.toLowerCase().includes(q)||p.sub.toLowerCase().includes(q)||p.category.toLowerCase().includes(q));
-    });
-  },[products,activeCat,search]);
-
-  // Pagination
-  const totalPages=Math.ceil(filtered.length/PAGE_SIZE);
-  const paginated=filtered.slice((page-1)*PAGE_SIZE,page*PAGE_SIZE);
-  const catNames=["Todos",...categories.map(c=>c.name)];
-
+  const filtered=useMemo(()=>{const q=search.trim().toLowerCase();return products.filter(p=>{const catOk=activeCat==="Todos"||p.category===activeCat;if(!q)return catOk;return catOk&&(p.name.toLowerCase().includes(q)||p.sub.toLowerCase().includes(q));});},[products,activeCat,search]);
   const cartCount=cart.reduce((s,i)=>s+i.qty,0);
   const cartTotal=cart.reduce((s,i)=>s+i.sellingPrice*i.qty,0);
   const movPct=Math.min((cartTotal/MOV)*100,100);
   const movMet=cartTotal>=MOV;
-
   const addItem=p=>setCart(prev=>{const ex=prev.find(i=>i.id===p.id);return ex?prev.map(i=>i.id===p.id?{...i,qty:i.qty+1}:i):[...prev,{...p,qty:1}];});
   const changeQty=(id,delta)=>setCart(prev=>prev.map(i=>i.id===id?{...i,qty:Math.max(0,i.qty+delta)}:i).filter(i=>i.qty>0));
   const removeItem=id=>setCart(prev=>prev.filter(i=>i.id!==id));
-
   const isCredit=CREDIT_METHODS.includes(payMethod);
   const creditDays=payMethod==="credit_week"?7:payMethod==="credit_month"?30:null;
   const dueDate=creditDays?new Date(Date.now()+creditDays*86400000).toLocaleDateString("pt-AO"):null;
-  const selectedPay=PAYMENT_METHODS.find(m=>m.id===payMethod);
 
   const handleCheckout=async()=>{
     const orderId="ORD-"+String(Math.floor(Math.random()*90000)+10000);
@@ -962,192 +920,104 @@ function BuyerCatalog({ products, categories, currentUser, settings, onNewOrder,
       items:cart.map(i=>({name:i.name,qty:i.qty,price:i.sellingPrice,total:i.sellingPrice*i.qty})),
     };
     await onNewOrder(order);
-    setSuccess({id:orderId,total:cartTotal,payMethod,dueDate,clientEmail:currentUser.email||""});
+    // WhatsApp notification to owner
+    notifyWA(`🛒 *Nova Encomenda — Menamart*\n\nCliente: *${order.clientName}* (${order.clientCode})\nID: *${orderId}*\nTotal: *${fmt(cartTotal)}*\nPagamento: ${PAYMENT_METHODS.find(m=>m.id===payMethod)?.label}\n${dueDate?`Prazo crédito: ${dueDate}\n`:""}Entrega: ${order.address}\n\nItens:\n${cart.map(i=>`• ${i.name} x${i.qty} = ${fmt(i.sellingPrice*i.qty)}`).join("\n")}`);
+    setSuccess({id:orderId,total:cartTotal,payMethod,dueDate});
     setCart([]);setCartOpen(false);
   };
 
-  const copyOrderCode=code=>{
-    navigator.clipboard.writeText(code).then(()=>{setCopied(true);setTimeout(()=>setCopied(false),2500);}).catch(()=>{});
-  };
-
   useEffect(()=>{if(!cartOpen)return;const h=e=>{if(e.key==="Escape")setCartOpen(false);};window.addEventListener("keydown",h);return()=>window.removeEventListener("keydown",h);},[cartOpen]);
-
-  // Reset page when filter changes
-  useEffect(()=>setPage(1),[activeCat,search]);
+  const catNames=["Todos",...categories.map(c=>c.name)];
+  const selectedPay=PAYMENT_METHODS.find(m=>m.id===payMethod);
 
   return (
     <>
       <NavBar page="catalog" goTo={goTo} currentUser={currentUser} cartCount={cartCount} onCartOpen={()=>setCartOpen(true)} onLogout={onLogout} />
-
-      {/* CATALOG — always shown, no home page */}
-      <div style={{background:"var(--off-white)",paddingBottom:70}}>
-        {/* Welcome + search bar */}
-        <div style={{background:"#0c1a0c",padding:"20px 20px 18px"}}>
-          <div style={{fontSize:13,fontFamily:"var(--font-body)",fontWeight:500,color:"rgba(255,255,255,.55)",marginBottom:10}}>
-            Bem-vindo, <strong style={{color:"#7dd87d"}}>{currentUser.businessName}</strong>
-          </div>
-          <div style={{display:"flex",maxWidth:560,background:"rgba(255,255,255,.11)",borderRadius:10,overflow:"hidden",border:"1px solid rgba(255,255,255,.16)"}}>
-            <input style={{flex:1,padding:"11px 16px",border:"none",background:"none",fontFamily:"inherit",fontSize:14,color:"#fff",outline:"none"}} placeholder="🔍 Pesquisar produtos..." value={search} onChange={e=>setSearch(e.target.value)} />
-            {search&&<button style={{background:"none",border:"none",padding:"0 14px",cursor:"pointer",fontSize:14,color:"rgba(255,255,255,.5)"}} onClick={()=>setSearch("")}>✕</button>}
-          </div>
-        </div>
-
-        {/* Category pills — text only, no images */}
-        <div style={{background:"var(--white)",borderBottom:"1px solid var(--border)",padding:"10px 16px",overflowX:"auto",whiteSpace:"nowrap"}}>
-          <div style={{display:"flex",gap:7,paddingBottom:2}}>
-            {catNames.map(c=>(
-              <button key={c} className={`pill${activeCat===c?" active":""}`} onClick={()=>setActiveCat(c)} style={{flexShrink:0}}>{c}</button>
-            ))}
-          </div>
-        </div>
-
-        {/* Products grid */}
-        <div style={{padding:"16px 16px 0",maxWidth:1200,margin:"0 auto"}}>
-          {filtered.length===0?(
-            <div style={{textAlign:"center",padding:"52px 0",color:"var(--ink-muted)"}}>
-              <div style={{fontSize:44,marginBottom:10}}>🔍</div>
-              <div style={{fontFamily:"var(--font-body)",fontWeight:700,marginBottom:7}}>Nenhum produto encontrado</div>
-              <span style={{color:"var(--green)",cursor:"pointer",fontWeight:700}} onClick={()=>{setSearch("");setActiveCat("Todos");}}>Limpar pesquisa</span>
+      {view==="home"?(
+        <div style={{background:"var(--off-white)"}}>
+          <div style={{background:"#0c1a0c",padding:"40px 24px 32px",textAlign:"center"}}>
+            <div style={{fontSize:13,fontFamily:"var(--font-body)",fontWeight:500,color:"rgba(255,255,255,.6)",marginBottom:7}}>Bem-vindo, <strong style={{color:"#7dd87d"}}>{currentUser.businessName}</strong></div>
+            <h1 style={{fontFamily:"var(--font-display)",fontSize:"clamp(20px,4vw,34px)",color:"#fff",marginBottom:16,fontWeight:700}}>O que procura hoje?</h1>
+            <div style={{display:"flex",maxWidth:460,margin:"0 auto",background:"rgba(255,255,255,.11)",borderRadius:10,overflow:"hidden",border:"1px solid rgba(255,255,255,.16)"}}>
+              <input style={{flex:1,padding:"12px 16px",border:"none",background:"none",fontFamily:"inherit",fontSize:14,color:"#fff",outline:"none"}} placeholder="Pesquisar produtos..." value={search} onChange={e=>{setSearch(e.target.value);setView("catalog");}} />
+              <button style={{background:"rgba(255,255,255,.1)",border:"none",padding:"0 18px",cursor:"pointer",fontSize:16,color:"rgba(255,255,255,.7)"}}>🔍</button>
             </div>
-          ):(
-            <>
-              <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:12}}>
-                <div style={{fontSize:12,color:"var(--ink-muted)",fontFamily:"var(--font-body)"}}>
-                  {filtered.length} produto{filtered.length!==1?"s":""}{activeCat!=="Todos"?` em ${activeCat}`:""}
-                  {totalPages>1&&` · Página ${page}/${totalPages}`}
-                </div>
+          </div>
+          <div className="section">
+            <div className="section-header"><div className="section-title">Categorias</div><span className="section-link" onClick={()=>setView("catalog")}>Ver tudo →</span></div>
+            <div className="cat-grid">{categories.map(c=><div key={c.id||c.name} className="cat-card" onClick={()=>{setActiveCat(c.name);setView("catalog");}}><img src={c.img} alt={c.name} onError={e=>{e.target.style.display="none";}} /><div className="cat-card-label">{c.name}</div></div>)}</div>
+          </div>
+          <div className="section" style={{paddingTop:0}}>
+            <div className="section-header"><div className="section-title">Destaques</div><span className="section-link" onClick={()=>setView("catalog")}>Ver todos →</span></div>
+            <div className="prod-grid">{products.slice(0,8).map(p=><ProductCard key={p.id} product={p} cartItem={cart.find(i=>i.id===p.id)} onAdd={addItem} onChangeQty={changeQty} />)}</div>
+          </div>
+        </div>
+      ):(
+        <div style={{background:"var(--off-white)"}}>
+          <div className="catalog-bar"><button className="back-btn" onClick={()=>{setSearch("");setActiveCat("Todos");setView("home");}}>← Início</button><div className="catalog-search"><input placeholder="Pesquisar..." value={search} onChange={e=>setSearch(e.target.value)} /><button>🔍</button></div></div>
+          <div className="section">
+            <div className="pills" style={{marginBottom:20}}>{catNames.map(c=><button key={c} className={`pill${activeCat===c?" active":""}`} onClick={()=>setActiveCat(c)}>{c}</button>)}</div>
+            {filtered.length===0?(<div style={{textAlign:"center",padding:"52px 0",color:"var(--ink-muted)"}}><div style={{fontSize:44,marginBottom:10}}>🔍</div><div style={{fontFamily:"var(--font-body)",fontWeight:700}}>Nenhum produto encontrado</div>{search&&<span style={{color:"var(--green)",cursor:"pointer",fontWeight:700}} onClick={()=>{setSearch("");setActiveCat("Todos");}}>Limpar</span>}</div>):(
+              <div className="prod-grid">{filtered.map(p=><ProductCard key={p.id} product={p} cartItem={cart.find(i=>i.id===p.id)} onAdd={addItem} onChangeQty={changeQty} />)}</div>
+            )}
+          </div>
+        </div>
+      )}
+      {cartCount>0&&!cartOpen&&<button className="float-cart" onClick={()=>setCartOpen(true)}>🛒 {cartCount} {cartCount===1?"item":"itens"} · {fmt(cartTotal)}</button>}
+      {cartOpen&&(<>
+        <div className="cart-overlay" onClick={()=>setCartOpen(false)} />
+        <div className="cart-panel">
+          <div className="cart-head"><span className="cart-head-title">Cesto {cartCount>0&&<span className="cart-badge">{cartCount}</span>}</span><button className="cart-close-btn" onClick={()=>setCartOpen(false)}>✕</button></div>
+          {cart.length===0?(<div className="cart-empty-state"><div style={{fontSize:42,opacity:.18}}>🛒</div><div style={{fontFamily:"var(--font-body)",fontWeight:700}}>Cesto vazio</div></div>):(
+            <div className="cart-items-scroll">{cart.map(item=>(
+              <div key={item.id} className="cart-row">
+                <img className="cart-row-img" src={item.img} alt={item.name} onError={e=>{e.target.style.display="none";}} />
+                <div><div className="cart-row-name">{item.name}</div><div className="cart-row-unit">{fmt(item.sellingPrice)} / un.</div></div>
+                <div className="cart-row-qty-ctrl"><button className="cqb" onClick={()=>changeQty(item.id,-1)}>−</button><input type="number" min="1" value={item.qty} onChange={e=>{const v=parseInt(e.target.value);if(!isNaN(v)&&v>0)changeQty(item.id,v-item.qty);}} style={{width:38,textAlign:"center",border:"1px solid var(--border)",borderRadius:6,fontFamily:"var(--font-body)",fontWeight:800,fontSize:13,padding:"2px 0",outline:"none"}} /><button className="cqb" onClick={()=>changeQty(item.id,1)}>+</button></div>
+                <div className="cart-row-line">{fmt(item.sellingPrice*item.qty)}</div>
+                <button className="cart-row-del" onClick={()=>removeItem(item.id)}>✕</button>
               </div>
-              <div className="prod-grid">
-                {paginated.map(p=><ProductCard key={p.id} product={p} cartItem={cart.find(i=>i.id===p.id)} onAdd={addItem} onChangeQty={changeQty} />)}
-              </div>
-              {/* Pagination */}
-              {totalPages>1&&(
-                <div className="pagination">
-                  <button className="page-btn" onClick={()=>setPage(p=>Math.max(1,p-1))} disabled={page===1}>← Anterior</button>
-                  {Array.from({length:Math.min(totalPages,7)},(_,i)=>{
-                    let p;
-                    if(totalPages<=7)p=i+1;
-                    else if(page<=4)p=i+1;
-                    else if(page>=totalPages-3)p=totalPages-6+i;
-                    else p=page-3+i;
-                    return p>=1&&p<=totalPages?(
-                      <button key={p} className={`page-btn${page===p?" active":""}`} onClick={()=>setPage(p)}>{p}</button>
-                    ):null;
-                  })}
-                  <button className="page-btn" onClick={()=>setPage(p=>Math.min(totalPages,p+1))} disabled={page===totalPages}>Próxima →</button>
-                </div>
-              )}
-            </>
+            ))}</div>
           )}
-        </div>
-      </div>
-
-      {/* Mobile bottom bar */}
-      {cartCount>0&&(
-        <div className="mobile-bottom-bar">
-          <div>
-            <div className="mobile-bottom-bar-total">{fmt(cartTotal)}</div>
-            <div className="mobile-bottom-bar-items">{cartCount} item{cartCount!==1?"s":""} no cesto</div>
-          </div>
-          <button className="mobile-bottom-bar-btn" onClick={()=>setCartOpen(true)}>🛒 Ver Cesto</button>
-        </div>
-      )}
-
-      {/* Float cart button (desktop) */}
-      {cartCount>0&&!cartOpen&&(
-        <button className="float-cart" onClick={()=>setCartOpen(true)} style={{bottom:22}}>
-          🛒 {cartCount} {cartCount===1?"item":"itens"} · {fmt(cartTotal)}
-        </button>
-      )}
-
-      {/* CART PANEL */}
-      {cartOpen&&(
-        <>
-          <div className="cart-overlay" onClick={()=>setCartOpen(false)} />
-          <div className="cart-panel">
-            <div className="cart-head">
-              <span className="cart-head-title">Cesto {cartCount>0&&<span className="cart-badge">{cartCount}</span>}</span>
-              <button className="cart-close-btn" onClick={()=>setCartOpen(false)}>✕</button>
+          <div className="cart-footer">
+            <div className="mov-bar-wrap">
+              <div className="mov-bar-labels"><span>Mínimo de encomenda</span><strong style={{fontFamily:"var(--font-display)",fontSize:13}}>{fmt(MOV)}</strong></div>
+              <div className="mov-bar-track"><div className="mov-bar-fill" style={{width:`${movPct}%`}} /></div>
+              <div className={`mov-bar-msg${movMet?" met":""}`}>{movMet?"✓ Mínimo atingido!":`Faltam ${fmt(MOV-cartTotal)}`}</div>
             </div>
-            {cart.length===0?(
-              <div className="cart-empty-state"><div style={{fontSize:42,opacity:.18}}>🛒</div><div style={{fontFamily:"var(--font-body)",fontWeight:700}}>Cesto vazio</div></div>
-            ):(
-              <div className="cart-items-scroll">
-                {cart.map(item=>(
-                  <div key={item.id} className="cart-row">
-                    <img className="cart-row-img" src={item.img} alt={item.name} onError={e=>{e.target.style.display="none";}} />
-                    <div><div className="cart-row-name">{item.name}</div><div className="cart-row-unit">{fmt(item.sellingPrice)} / un.</div></div>
-                    <div className="cart-row-qty-ctrl">
-                      <button className="cqb" onClick={()=>changeQty(item.id,-1)}>−</button>
-                      <input type="number" min="1" value={item.qty} onChange={e=>{const v=parseInt(e.target.value);if(!isNaN(v)&&v>0)changeQty(item.id,v-item.qty);}} style={{width:38,textAlign:"center",border:"1px solid var(--border)",borderRadius:6,fontFamily:"var(--font-body)",fontWeight:800,fontSize:13,padding:"2px 0",outline:"none"}} />
-                      <button className="cqb" onClick={()=>changeQty(item.id,1)}>+</button>
-                    </div>
-                    <div className="cart-row-line">{fmt(item.sellingPrice*item.qty)}</div>
-                    <button className="cart-row-del" onClick={()=>removeItem(item.id)}>✕</button>
-                  </div>
-                ))}
+            <div className="cart-total-row"><span className="cart-total-label">Total</span><span className="cart-total-val">{fmt(cartTotal)}</span></div>
+            {movMet&&cart.length>0&&(
+              <div>
+                <div className="pay-section-label">Pagamento</div>
+                <div className="pay-chips">
+                  {PAYMENT_METHODS.filter(m=>acceptedMethods.includes(m.id)).map(m=>{const isC=CREDIT_METHODS.includes(m.id);return(<button key={m.id} className={`pay-chip${isC?" credit-chip":""}${payMethod===m.id?" sel":""}`} onClick={()=>setPayMethod(m.id)}>{m.icon} {m.label}</button>);})}
+                </div>
+                {payMethod==="bank_transfer"&&(settings?.banks||[]).length>0&&<div className="pay-info" style={{marginTop:8}}>{settings.banks.map(b=><div key={b.id}>🏦 <strong>{b.bankName}</strong>{b.iban&&<> · <span style={{fontFamily:"monospace",fontSize:11}}>{b.iban}</span></>}</div>)}</div>}
+                {payMethod==="multicaixa"&&<div className="pay-info" style={{marginTop:8,background:"#fff7ed"}}>📱 Multicaixa: <strong style={{fontFamily:"monospace"}}>{settings?.multicaixaRef}</strong></div>}
+                {isCredit&&<div className="pay-info" style={{marginTop:8,background:"#faf5ff",color:"#5b21b6"}}>📅 <strong>Crédito {creditDays} dias</strong> — vence em <strong>{dueDate}</strong></div>}
               </div>
             )}
-            <div className="cart-footer">
-              <div className="mov-bar-wrap">
-                <div className="mov-bar-labels"><span>Mínimo de encomenda</span><strong style={{fontFamily:"var(--font-display)",fontSize:13}}>{fmt(MOV)}</strong></div>
-                <div className="mov-bar-track"><div className="mov-bar-fill" style={{width:`${movPct}%`}} /></div>
-                <div className={`mov-bar-msg${movMet?" met":""}`}>{movMet?"✓ Mínimo atingido!":`Faltam ${fmt(MOV-cartTotal)}`}</div>
-              </div>
-              <div className="cart-total-row"><span className="cart-total-label">Total</span><span className="cart-total-val">{fmt(cartTotal)}</span></div>
-              {movMet&&cart.length>0&&(
-                <div>
-                  <div className="pay-section-label">Pagamento</div>
-                  <div className="pay-chips">
-                    {PAYMENT_METHODS.filter(m=>acceptedMethods.includes(m.id)).map(m=>{const isC=CREDIT_METHODS.includes(m.id);return(<button key={m.id} className={`pay-chip${isC?" credit-chip":""}${payMethod===m.id?" sel":""}`} onClick={()=>setPayMethod(m.id)}>{m.icon} {m.label}</button>);})}
-                  </div>
-                  {payMethod==="bank_transfer"&&(settings?.banks||[]).length>0&&<div className="pay-info" style={{marginTop:8}}>{settings.banks.map(b=><div key={b.id}>🏦 <strong>{b.bankName}</strong>{b.iban&&<> · <span style={{fontFamily:"monospace",fontSize:11}}>{b.iban}</span></>}</div>)}</div>}
-                  {payMethod==="multicaixa"&&<div className="pay-info" style={{marginTop:8,background:"#fff7ed"}}>📱 Multicaixa: <strong style={{fontFamily:"monospace"}}>{settings?.multicaixaRef}</strong></div>}
-                  {isCredit&&<div className="pay-info" style={{marginTop:8,background:"#faf5ff",color:"#5b21b6"}}>📅 <strong>Crédito {creditDays} dias</strong> — vence em <strong>{dueDate}</strong></div>}
-                </div>
-              )}
-              <div className="cart-delivery-note"><span>🚚</span><span>Entrega: <strong>{currentUser.address}</strong></span></div>
-              <button className={`cart-checkout-btn${!movMet||!cart.length?" not-ready":isCredit?" credit-ready":" ready"}`} onClick={movMet&&cart.length?handleCheckout:undefined} disabled={!movMet||!cart.length}>
-                {!movMet?`Mínimo: ${fmt(MOV)}`:`Confirmar · ${selectedPay?.icon} ${selectedPay?.label}`}
-              </button>
-            </div>
+            <div className="cart-delivery-note"><span>🚚</span><span>Entrega: <strong>{currentUser.address}</strong></span></div>
+            <button className={`cart-checkout-btn${!movMet||!cart.length?" not-ready":isCredit?" credit-ready":" ready"}`} onClick={movMet&&cart.length?handleCheckout:undefined} disabled={!movMet||!cart.length}>
+              {!movMet?`Mínimo: ${fmt(MOV)}`:`Confirmar · ${selectedPay?.icon} ${selectedPay?.label}`}
+            </button>
           </div>
-        </>
-      )}
-
-      {/* SUCCESS MODAL — order code with copy button, no WhatsApp popup */}
+        </div>
+      </>)}
       {success&&(
         <div className="modal-overlay">
           <div className="success-modal">
             <button className="modal-x dark" onClick={()=>setSuccess(null)}>✕</button>
             <div className="success-icon">✅</div>
-            <div className="success-title">Encomenda Confirmada!</div>
-            <div className="success-sub">A sua encomenda foi registada. A equipa Menamart irá contactá-lo em breve.</div>
-
-            {/* Order code — big and copyable */}
-            <div className="order-code-box">
-              <div className="order-code-label">O seu código de encomenda</div>
-              <div className="order-code-value">{success.id}</div>
-              <button className="order-code-copy-btn" onClick={()=>copyOrderCode(success.id)}>
-                {copied?"✅ Copiado!":"📋 Copiar código"}
-              </button>
-            </div>
-
-            <div style={{background:"var(--green-pale)",border:"1px solid var(--green-pale2)",borderRadius:9,padding:"10px 14px",fontSize:12,color:"var(--ink-soft)",marginBottom:12,textAlign:"left",lineHeight:1.7}}>
-              💡 <strong>Guarde este código.</strong> Se houver algum problema com a sua encomenda, envie este código para a nossa equipa e encontramos de imediato.
-            </div>
-
-            {success.clientEmail&&(
-              <div className="email-sent-badge">📧 Confirmação enviada para <strong>{success.clientEmail}</strong></div>
-            )}
-
-            {isCredit&&<div className="pay-info" style={{textAlign:"left",marginBottom:12,background:"#faf5ff",border:"1px solid #e9d5ff",borderRadius:9,padding:"10px 14px",fontSize:13,color:"#5b21b6"}}>📅 Prazo de pagamento: <strong>{success.dueDate}</strong></div>}
-
-            <button className="btn-green" style={{width:"100%",padding:12,fontSize:14}} onClick={()=>setSuccess(null)}>Continuar a Encomendar</button>
+            <div className="success-title">Encomenda Enviada!</div>
+            <div className="success-sub">Recebemos o seu pedido. A equipa confirmará em breve via WhatsApp.</div>
+            <div className="order-id-box">#{success.id}</div>
+            {isCredit&&<div className="pay-info" style={{textAlign:"left",marginBottom:14,background:"#faf5ff",border:"1px solid #e9d5ff",borderRadius:9,padding:"10px 14px",fontSize:13,color:"#5b21b6"}}>📅 Prazo de pagamento: <strong>{success.dueDate}</strong></div>}
+            <a href={waLink(`Olá Menamart! Fiz encomenda *${success.id}*. Total: *${fmt(success.total)}*. Aguardo confirmação!`)} target="_blank" rel="noreferrer" className="btn-wa" style={{marginBottom:10}}>💬 Confirmar via WhatsApp</a>
+            <button className="btn-green" style={{width:"100%",padding:12}} onClick={()=>setSuccess(null)}>Voltar ao Catálogo</button>
           </div>
         </div>
       )}
-
       <Footer goTo={goTo} onSecretClick={onSecretClick} />
     </>
   );
@@ -1248,7 +1118,6 @@ function AdminDashboard({ products, orders, clients, feedbacks }) {
   const creditOrders=orders.filter(o=>CREDIT_METHODS.includes(o.paymentMethod));
   const overdueCredit=creditOrders.filter(o=>{if(!o.creditDueDate||o.paymentStatus==="Paid")return false;try{return new Date(o.creditDueDate.split("/").reverse().join("-"))<new Date();}catch{return false;}});
   const newFeedbacks=feedbacks.filter(f=>f.status==="Novo").length;
-  const deleteOrder=async id=>{if(window.confirm("Apagar esta encomenda?"))try{await delDoc("orders",id);}catch(e){console.error(e);}};
   return (
     <div>
       <div className="admin-title">Painel de Controlo</div>
@@ -1263,8 +1132,8 @@ function AdminDashboard({ products, orders, clients, feedbacks }) {
         <div className="card-header"><div className="card-title">Encomendas Recentes</div></div>
         <div style={{overflowX:"auto"}}>
           <table>
-            <thead><tr><th>ID</th><th>Cliente</th><th>Total</th><th>Pagamento</th><th>Estado</th><th>Data</th><th></th></tr></thead>
-            <tbody>{orders.slice(0,12).map(o=>{const c=STATUS_COLORS[o.status]||"#999";const pm=PAYMENT_METHODS.find(m=>m.id===o.paymentMethod);const isC=CREDIT_METHODS.includes(o.paymentMethod);return(<tr key={o.id}><td><strong style={{fontFamily:"monospace"}}>{o.id}</strong></td><td style={{fontWeight:700}}>{o.clientName}</td><td style={{fontFamily:"var(--font-display)",color:"var(--green)",fontSize:14,fontWeight:600}}>{fmt(o.total)}</td><td><span className={`tag${isC?" tag-credit":""}`}>{pm?`${pm.icon} ${pm.label}`:"—"}</span></td><td><span className="status-badge" style={{background:`${c}18`,color:c}}><span className="status-dot" style={{background:c}} />{o.status}</span></td><td style={{fontSize:12}}>{o.date}</td><td><button className="btn-sm btn-red" onClick={()=>deleteOrder(o.id)}>🗑️</button></td></tr>);})}</tbody>
+            <thead><tr><th>ID</th><th>Cliente</th><th>Total</th><th>Pagamento</th><th>Estado</th><th>Data</th></tr></thead>
+            <tbody>{orders.slice(0,12).map(o=>{const c=STATUS_COLORS[o.status]||"#999";const pm=PAYMENT_METHODS.find(m=>m.id===o.paymentMethod);const isC=CREDIT_METHODS.includes(o.paymentMethod);return(<tr key={o.id}><td><strong style={{fontFamily:"monospace"}}>{o.id}</strong></td><td style={{fontWeight:700}}>{o.clientName}</td><td style={{fontFamily:"var(--font-display)",color:"var(--green)",fontSize:14,fontWeight:600}}>{fmt(o.total)}</td><td><span className={`tag${isC?" tag-credit":""}`}>{pm?`${pm.icon} ${pm.label}`:"—"}</span>{isC&&o.creditDueDate&&<div style={{fontSize:10,color:"#5b21b6",marginTop:2}}>Vence: {o.creditDueDate}</div>}</td><td><span className="status-badge" style={{background:`${c}18`,color:c}}><span className="status-dot" style={{background:c}} />{o.status}</span></td><td style={{fontSize:12}}>{o.date}</td></tr>);})}</tbody>
           </table>
         </div>
       </div>
@@ -1456,17 +1325,12 @@ function AdminOrders({ orders, clients, settings }) {
   const [filter,setFilter]=useState("All");
   const [subTab,setSubTab]=useState("all");
   const [invoiceOrder,setInvoiceOrder]=useState(null);
-  const [search,setSearch]=useState("");
   const creditOrders=orders.filter(o=>CREDIT_METHODS.includes(o.paymentMethod));
-
-  const base=subTab==="credit"?creditOrders:(filter==="All"?orders:orders.filter(o=>o.status===filter));
-  const shown=search.trim()?base.filter(o=>o.id.toLowerCase().includes(search.trim().toLowerCase())||o.clientName.toLowerCase().includes(search.trim().toLowerCase())||o.clientCode.toLowerCase().includes(search.trim().toLowerCase())):base;
-
+  const shown=subTab==="credit"?creditOrders:(filter==="All"?orders:orders.filter(o=>o.status===filter));
   const isOverdue=o=>{if(!CREDIT_METHODS.includes(o.paymentMethod)||!o.creditDueDate||o.paymentStatus==="Paid")return false;try{return new Date(o.creditDueDate.split("/").reverse().join("-"))<new Date();}catch{return false;}};
   const getPhone=order=>{const c=clients.find(cl=>(cl.id||cl._id)===order.clientId||cl.code===order.clientCode);return(c?.phone||order.clientPhone||"").replace(/\D/g,"")||WA_NUMBER;};
   const updateStatus=async(id,status)=>{try{await updDoc("orders",id,{status});}catch(e){console.error(e);}};
   const markPaid=async id=>{try{await updDoc("orders",id,{paymentStatus:"Paid",status:"Delivered"});}catch(e){console.error(e);}};
-  const deleteOrder=async id=>{if(window.confirm("Apagar esta encomenda?"))try{await delDoc("orders",id);}catch(e){console.error(e);}};
   const sendConfirm=order=>{const pm=PAYMENT_METHODS.find(m=>m.id===order.paymentMethod);window.open(waLink(`✅ *Encomenda Confirmada — Menamart*\n\nOlá *${order.clientName}*!\n📦 ID: ${order.id}\n💰 Total: ${fmt(order.total)}\n${pm?`💳 ${pm.label}\n`:""}${order.creditDueDate?`📅 Prazo: ${order.creditDueDate}\n`:""}📍 ${order.address}\n\nObrigado! 🙏`,getPhone(order)),"_blank");};
   const sendReminder=order=>window.open(waLink(`📅 *Lembrete de Pagamento — Menamart*\n\nOlá *${order.clientName}*!\n\nEncomenda *${order.id}*\n💰 Valor: ${fmt(order.total)}\n📅 Data limite: ${order.creditDueDate}\n\nPor favor efectue o pagamento.\n_Menamart_`,getPhone(order)),"_blank");
   return (
@@ -1474,13 +1338,6 @@ function AdminOrders({ orders, clients, settings }) {
       <div className="admin-title">Gestão de Encomendas</div>
       <div className="admin-sub">Estados actualizados em tempo real via Firebase.</div>
       {creditOrders.filter(isOverdue).length>0&&<div className="credit-box" style={{marginBottom:16}}>⚠️ <strong>{creditOrders.filter(isOverdue).length} encomenda(s) a crédito em atraso!</strong></div>}
-
-      {/* Search by order ID or client */}
-      <div style={{display:"flex",maxWidth:400,background:"var(--white)",borderRadius:9,overflow:"hidden",border:"1.5px solid var(--border)",marginBottom:16}}>
-        <input style={{flex:1,padding:"9px 14px",border:"none",fontFamily:"var(--font-body)",fontSize:13,outline:"none",color:"var(--ink)"}} placeholder="🔍 Pesquisar por código ou cliente..." value={search} onChange={e=>setSearch(e.target.value)} />
-        {search&&<button style={{background:"none",border:"none",padding:"0 12px",cursor:"pointer",color:"var(--ink-muted)",fontSize:13}} onClick={()=>setSearch("")}>✕</button>}
-      </div>
-
       <div style={{display:"flex",gap:8,marginBottom:16}}>
         <button className={`pill${subTab==="all"?" active":""}`} onClick={()=>setSubTab("all")}>Todas ({orders.length})</button>
         <button className={`pill${subTab==="credit"?" active":""}`} onClick={()=>setSubTab("credit")} style={{background:subTab==="credit"?"#7c3aed":"",borderColor:subTab==="credit"?"#7c3aed":"",color:subTab==="credit"?"#fff":""}}>📅 Crédito ({creditOrders.length})</button>
@@ -1504,7 +1361,6 @@ function AdminOrders({ orders, clients, settings }) {
                   {isC&&!overdue&&o.paymentStatus!=="Paid"&&<button className="btn-sm" style={{background:"#7c3aed",color:"#fff",border:"none",borderRadius:5,padding:"4px 7px",cursor:"pointer",fontSize:11}} onClick={()=>sendReminder(o)}>📅</button>}
                   {isC&&o.paymentStatus!=="Paid"&&<button className="btn-sm" style={{background:"#16a34a",color:"#fff",border:"none",borderRadius:5,padding:"4px 7px",cursor:"pointer",fontSize:11}} onClick={()=>markPaid(o.id)}>💰</button>}
                   <button className="btn-sm btn-gray" onClick={()=>setInvoiceOrder(o)}>🧾</button>
-                  <button className="btn-sm btn-red" onClick={()=>deleteOrder(o.id)}>🗑️</button>
                 </div></td>
               </tr>
             );})}
@@ -1512,7 +1368,7 @@ function AdminOrders({ orders, clients, settings }) {
           </table>
         </div>
       </div>
-      <div className="info-box">✅ Confirmar · 🚚 A caminho · 📅 Lembrete · 💰 Marcar pago · 🧾 Factura · 🗑️ Apagar</div>
+      <div className="info-box">✅ Confirmar WhatsApp · 🚚 A caminho · 📅 Lembrete crédito · 💰 Marcar pago · 🧾 Factura</div>
       {invoiceOrder&&<InvoiceModal order={invoiceOrder} onClose={()=>setInvoiceOrder(null)} />}
     </div>
   );
@@ -1806,10 +1662,7 @@ export default function App() {
 
   const handleNewOrder=async order=>{
     try{await setDoc(doc(db,"orders",order.id),order);}catch(e){console.error(e);}
-    // Email notification to owner — opens email client
-    const subject=encodeURIComponent(`[Menamart] Nova Encomenda ${order.id} — ${order.clientName}`);
-    const body=encodeURIComponent(`Nova encomenda recebida!\n\nID: ${order.id}\nCliente: ${order.clientName} (${order.clientCode})\nTotal: ${order.total} AKZ\nPagamento: ${PAYMENT_METHODS.find(m=>m.id===order.paymentMethod)?.label||order.paymentMethod}\nEntrega: ${order.address}\nData: ${order.date}\n\nItens:\n${(order.items||[]).map(i=>`- ${i.name} x${i.qty} = ${i.price*i.qty} AKZ`).join("\n")}`);
-    window.open(`mailto:menamart.angola@gmail.com?subject=${subject}&body=${body}`,"_blank");
+    // Notify owner via WhatsApp (already done in BuyerCatalog handleCheckout)
     setToast({msg:`🛒 Nova encomenda de ${order.clientName} · ${fmt(order.total)}`});
     setTimeout(()=>setToast(null),7000);
   };
