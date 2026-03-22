@@ -1906,6 +1906,5 @@ export default function App() {
     </>
   );
 }
-...
   );
 }
