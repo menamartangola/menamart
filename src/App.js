@@ -56,7 +56,7 @@ const PAYMENT_METHODS = [
   { id:"credit_month",  label:"Crédito 30 dias", icon:"🗓️", desc:"Pagar em 30 dias" },
 ];
 
-const LOGO_SRC = "https://i.ibb.co/Txpmsr6G/Whats-App-Image-2026-03-22-at-21-45-20.jpg";
+const LOGO_SRC = "https://i.ibb.co/wNS8LtMn/logo.png";
 
 const SEED_PRODUCTS = [
   { id:"p1",  name:"Arroz Carolino",      sub:"Saco 25kg",     category:"Arroz",       costPrice:8500,  sellingPrice:12500, stock:true, img:"https://images.unsplash.com/photo-1586201375761-83865001e31c?w=400&q=80", desc:"Arroz carolino de grão longo, ideal para hotelaria e restauração. Grão firme após cozedura." },
