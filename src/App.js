@@ -1,6 +1,6 @@
 import React, { useState, useMemo, useEffect, useRef } from "react";
 import { initializeApp } from "firebase/app";
-import { getFirestore, collection, doc, setDoc, addDoc, onSnapshot, updateDoc, deleteDoc, writeBatch } from "firebase/firestore";
+import { getFirestore, collection, doc, setDoc, onSnapshot, updateDoc, deleteDoc, writeBatch } from "firebase/firestore";
 
 const firebaseConfig = {
   apiKey: "AIzaSyCNin75h_Ywke6TWsxUr47hv5YmEGrFhQc",
@@ -727,8 +727,6 @@ function Footer({ goTo, onSecretClick }) {
 
 // Invoice Modal
 function InvoiceModal({ order, onClose }) {
-  const pm = PAYMENT_METHODS.find(m=>m.id===order.paymentMethod);
-  const isCredit = CREDIT_METHODS.includes(order.paymentMethod);
   const printInvoice = () => {
     const win = window.open("","_blank","width=800,height=600");
     win.document.write(`<html><head><title>Factura ${order.id}</title>
