@@ -129,7 +129,14 @@ body{font-family:var(--font-body);background:var(--off-white);color:var(--ink);-
 
 /* FIX #7: Amazon-style navbar */
 .nav{position:sticky;top:0;z-index:200;background:#0c1a0c;border-bottom:1px solid rgba(255,255,255,.06);box-shadow:0 2px 16px rgba(0,0,0,.25)}
-.nav-top{height:auto;padding:8px 20px;display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+.nav-top{height:62px;padding:0 20px;display:flex;align-items:center;gap:12px}
+.nav-search-row{display:none;padding:8px 12px;background:#0c1a0c;border-top:1px solid rgba(255,255,255,.06)}
+.nav-search-row-inner{display:flex;background:#fff;border-radius:4px;overflow:hidden;border:2px solid #EF9F27;width:100%}
+.nav-search-row-inner input{flex:1;padding:11px 16px;border:none;background:#fff;font-size:15px;color:#0c1a0c;outline:none}
+.nav-search-row-inner input::placeholder{color:#999}
+.nav-search-row-inner button{background:#EF9F27;border:none;padding:0 22px;cursor:pointer;font-size:18px;color:#fff}
+.nav-search-row-inner button:hover{background:#cc8800}
+@media(max-width:860px){.nav-top{height:auto;padding:8px 12px}.nav-search{display:none!important}.nav-search-row{display:block}}
 .nav-logo{display:flex;align-items:center;gap:8px;cursor:pointer;flex-shrink:0;text-decoration:none}
 .nav-logo img{height:38px;width:auto;object-fit:contain}
 .nav-brand{font-family:var(--font-display);font-size:24px;letter-spacing:-.02em;font-weight:800}
@@ -675,6 +682,17 @@ function NavBar({ page, goTo, currentUser, cartCount=0, onCartOpen, onSearch, se
           ) : (
             <button className="btn-outline-nav" onClick={()=>goTo("login")}>Entrar →</button>
           )}
+        </div>
+      </div>
+     {/* Mobile search row */}
+      <div className="nav-search-row">
+        <div className="nav-search-row-inner">
+          <input
+            placeholder="Pesquisar produtos HORECA..."
+            value={localSearch}
+            onChange={e=>{setLocalSearch(e.target.value);onSearch&&onSearch(e.target.value);}}
+          />
+          <button onClick={handleSearch}>🔍</button>
         </div>
       </div>
       {/* FIX #7: Welcome bar for logged-in users */}
