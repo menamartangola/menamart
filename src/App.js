@@ -367,6 +367,20 @@ input:checked+.toggle-slider:before{transform:translateX(17px)}
 
 .admin-wrap{display:grid;grid-template-columns:210px 1fr;min-height:calc(100vh - 62px)}
 .admin-sidebar{background:#0c1a0c;padding:16px 8px;display:flex;flex-direction:column;gap:2px;border-right:1px solid rgba(255,255,255,.05)}
+.admin-search{display:flex;background:#fff;border-radius:9px;overflow:hidden;border:1.5px solid var(--border);margin-bottom:16px}
+.admin-search input{flex:1;padding:10px 14px;border:none;font-size:13px;outline:none;color:var(--ink)}
+.admin-search button{background:var(--green);border:none;padding:0 16px;cursor:pointer;color:#fff;font-size:14px}
+@media(max-width:640px){
+  .admin-wrap{grid-template-columns:1fr}
+  .admin-sidebar{flex-direction:row;flex-wrap:wrap;padding:6px 8px;gap:3px;border-right:none;border-bottom:1px solid rgba(255,255,255,.05);overflow-x:auto;position:sticky;top:62px;z-index:100}
+  .admin-nav-btn{padding:7px 10px;font-size:11px;flex-shrink:0}
+  .admin-content{padding:12px}
+  .admin-form-grid{grid-template-columns:1fr}
+  .stats-row{grid-template-columns:1fr 1fr}
+  table{font-size:11px}
+  th,td{padding:7px 8px}
+  .btn-sm{padding:4px 7px;font-size:11px}
+}
 .admin-sidebar-label{font-size:9px;font-weight:700;letter-spacing:.15em;text-transform:uppercase;color:rgba(255,255,255,.18);padding:5px 10px;margin-top:10px}
 .admin-nav-btn{display:flex;align-items:center;gap:9px;padding:9px 10px;border-radius:8px;cursor:pointer;color:rgba(255,255,255,.4);font-size:13px;font-weight:500;transition:all .15s;border:none;background:none;width:100%;text-align:left}
 .admin-nav-btn:hover{background:rgba(255,255,255,.05);color:rgba(255,255,255,.75)}
@@ -1336,6 +1350,11 @@ function AdminProducts({ products, categories }) {
   const [showForm,setShowForm]=useState(false);
   const [editId,setEditId]=useState(null);
   const [quickViewProduct,setQuickViewProduct]=useState(null);
+  const [adminSearch,setAdminSearch]=useState("");
+  const filteredAdminProducts=useMemo(()=>{
+    if(!adminSearch.trim())return products;
+    return products.filter(p=>p.name.toLowerCase().includes(adminSearch.toLowerCase())||p.category.toLowerCase().includes(adminSearch.toLowerCase()));
+  },[products,adminSearch]);
   const defCat=categories.length>0?categories[0].name:"";
   const empty={name:"",sub:"",category:defCat,costPrice:"",sellingPrice:"",img:"",stock:true,desc:""};
   const [form,setForm]=useState(empty);
@@ -1395,12 +1414,16 @@ function AdminProducts({ products, categories }) {
           </div>
         </div>
       )}
+     <div className="admin-search">
+        <input placeholder="🔍 Pesquisar produto ou categoria..." value={adminSearch} onChange={e=>setAdminSearch(e.target.value)} />
+        {adminSearch&&<button onClick={()=>setAdminSearch("")}>✕</button>}
+      </div>
       <div className="card">
-        <div className="card-header"><div className="card-title">Catálogo ({products.length} produtos)</div><button className="btn-green btn-sm" onClick={openNew}>+ Novo Produto</button></div>
+        <div className="card-header"><div className="card-title">Catálogo ({filteredAdminProducts.length} produtos)</div><button className="btn-green btn-sm" onClick={openNew}>+ Novo Produto</button></div>
         <div style={{overflowX:"auto"}}>
           <table>
             <thead><tr><th>Produto</th><th>Categoria</th><th>Custo</th><th>Venda</th><th>Margem</th><th>Stock</th><th>Acções</th></tr></thead>
-            <tbody>{products.map(p=>{const margin=p.costPrice>0?(((p.sellingPrice-p.costPrice)/p.costPrice)*100).toFixed(0):null;return(
+            <tbody>{filteredAdminProducts.map(p=>{const margin=p.costPrice>0?(((p.sellingPrice-p.costPrice)/p.costPrice)*100).toFixed(0):null;return(
               <tr key={p.id}>
                 <td><div style={{display:"flex",alignItems:"center",gap:9}}>
                   <img src={p.img} alt="" style={{width:36,height:36,borderRadius:6,objectFit:"cover",background:"var(--gray)",cursor:"pointer"}} onError={e=>{e.target.style.display="none";}} onClick={()=>setQuickViewProduct(p)} />
