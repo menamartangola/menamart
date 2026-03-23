@@ -1601,6 +1601,72 @@ function AdminOrders({ orders, clients, settings }) {
   );
 }
 
+function AdminCategories({ categories }) {
+  const [showForm,setShowForm]=useState(false);
+  const [editId,setEditId]=useState(null);
+  const empty={name:""};
+  const [form,setForm]=useState(empty);
+  const [saving,setSaving]=useState(false);
+  const save=async()=>{
+    if(!form.name)return;setSaving(true);
+    try{
+      if(editId)await setDoc(doc(db,"categories",String(editId)),{...form,id:editId});
+      else{const id=genId();await setDoc(doc(db,"categories",id),{...form,id});}
+    }catch(e){console.error(e);}
+    setSaving(false);setShowForm(false);setEditId(null);
+  };
+  const remove=async c=>{
+    if(window.confirm(`Apagar categoria "${c.name}"?\n\nAtenção: os produtos desta categoria não serão apagados.`))
+      try{await delDoc("categories",c.id||c._id);}catch(e){console.error(e);}
+  };
+  return (
+    <div>
+      <div className="admin-title">Gestão de Categorias</div>
+      <div className="admin-sub">Categorias disponíveis no catálogo. Guardadas no Firebase.</div>
+      {showForm&&(
+        <div className="form-section">
+          <div className="form-section-title">{editId?"✏️ Editar Categoria":"➕ Nova Categoria"}</div>
+          <div className="admin-form-field" style={{marginBottom:14}}>
+            <label>Nome da Categoria *</label>
+            <input type="text" value={form.name} onChange={e=>setForm(f=>({...f,name:e.target.value}))} placeholder="Ex: Carnes, Bebidas, Laticínios..." />
+          </div>
+          <div style={{display:"flex",gap:9,marginTop:14}}>
+            <button className="btn-green" onClick={save} disabled={saving}>{saving?"A guardar...":editId?"✅ Guardar":"➕ Adicionar"}</button>
+            <button className="btn-sm btn-gray" style={{padding:"9px 16px"}} onClick={()=>{setShowForm(false);setEditId(null);}}>Cancelar</button>
+          </div>
+        </div>
+      )}
+      <div className="card">
+        <div className="card-header">
+          <div className="card-title">Categorias ({categories.length})</div>
+          <button className="btn-green btn-sm" onClick={()=>{setForm(empty);setEditId(null);setShowForm(true);}}>+ Nova</button>
+        </div>
+        <div style={{display:"grid",gridTemplateColumns:"repeat(auto-fill,minmax(200px,1fr))",gap:12,padding:16}}>
+          {categories.length===0?(
+            <div style={{textAlign:"center",padding:"32px",color:"var(--ink-muted)",gridColumn:"1/-1"}}>
+              <div style={{fontSize:36,marginBottom:9}}>🏷️</div>
+              <div style={{fontWeight:700,marginBottom:7}}>Ainda sem categorias</div>
+              <button className="btn-green" onClick={()=>{setForm(empty);setEditId(null);setShowForm(true);}}>+ Adicionar Primeira Categoria</button>
+            </div>
+          ):categories.map(c=>(
+            <div key={c.id||c._id} style={{background:"var(--off-white)",borderRadius:10,border:"1px solid var(--border)",padding:"14px 16px",display:"flex",alignItems:"center",justifyContent:"space-between",gap:10}}>
+              <div style={{display:"flex",alignItems:"center",gap:10}}>
+                <div style={{width:36,height:36,background:"var(--green-pale)",borderRadius:8,display:"flex",alignItems:"center",justifyContent:"center",fontSize:18}}>🏷️</div>
+                <div style={{fontWeight:700,fontSize:14,color:"var(--ink)"}}>{c.name}</div>
+              </div>
+              <div style={{display:"flex",gap:6}}>
+                <button className="btn-sm btn-gray" onClick={()=>{setForm({name:c.name});setEditId(c.id||c._id);setShowForm(true);}}>✏️</button>
+                <button className="btn-sm btn-red" onClick={()=>remove(c)}>🗑️</button>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+      <div className="info-box">💡 As categorias adicionadas aqui aparecem automaticamente nos filtros do catálogo e no formulário de produtos.</div>
+    </div>
+  );
+}
+
 function AdminPartners({ partners }) {
   const [showForm,setShowForm]=useState(false);
   const [editId,setEditId]=useState(null);
@@ -1750,7 +1816,7 @@ function AdminApp({ products, categories, orders, clients, feedbacks, partners, 
   const [tab,setTab]=useState("dashboard");
   const newFeedbacks=feedbacks.filter(f=>f.status==="Novo").length;
   const pendingOrders=orders.filter(o=>o.status==="Pending").length;
-  const navItems=[{k:"dashboard",i:"📊",l:"Dashboard"},{k:"clients",i:"👥",l:"Clientes"},{k:"products",i:"📦",l:`Produtos`},{k:"orders",i:"🛒",l:`Encomendas${pendingOrders>0?` (${pendingOrders})`:""}`},{k:"payment",i:"💳",l:"Pagamentos"},{k:"partners",i:"🤝",l:"Parceiros"},{k:"feedbacks",i:"💡",l:`Sugestões${newFeedbacks>0?` (${newFeedbacks})`:""}`},{k:"security",i:"🔒",l:"Segurança"}];
+  const navItems=[{k:"dashboard",i:"📊",l:"Dashboard"},{k:"clients",i:"👥",l:"Clientes"},{k:"products",i:"📦",l:`Produtos`},{k:"categories",i:"🏷️",l:"Categorias"},{k:"orders",i:"🛒",l:`Encomendas${pendingOrders>0?` (${pendingOrders})`:""}`},{k:"payment",i:"💳",l:"Pagamentos"},{k:"partners",i:"🤝",l:"Parceiros"},{k:"feedbacks",i:"💡",l:`Sugestões${newFeedbacks>0?` (${newFeedbacks})`:""}`},{k:"security",i:"🔒",l:"Segurança"}]; 
   return (
     <div className="admin-wrap">
       <div className="admin-sidebar">
@@ -1764,6 +1830,7 @@ function AdminApp({ products, categories, orders, clients, feedbacks, partners, 
         {tab==="products"&&<AdminProducts products={products} categories={categories} />}
         {tab==="orders"&&<AdminOrders orders={orders} clients={clients} settings={settings} />}
         {tab==="payment"&&<AdminPayment settings={settings} />}
+        {tab==="categories"&&<AdminCategories categories={categories} />}
         {tab==="partners"&&<AdminPartners partners={partners} />}
         {tab==="feedbacks"&&<AdminFeedbacks feedbacks={feedbacks} />}
         {tab==="security"&&<AdminSecurity settings={settings} setSettings={setSettings} securityLog={securityLog} />}
