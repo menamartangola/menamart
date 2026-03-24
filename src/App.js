@@ -215,14 +215,12 @@ body{font-family:var(--font-body);background:var(--off-white);color:var(--ink);-
 .price-hidden{display:inline-flex;align-items:center;gap:5px;background:var(--orange-pale);border:1px solid #fcd9bc;border-radius:100px;padding:3px 10px;font-size:11px;font-weight:700;color:var(--orange-dark);cursor:pointer}
 .price-hidden:hover{background:#fde8d5}
 
-.cat-grid{display:flex;gap:9px;overflow-x:auto;padding-bottom:4px;scrollbar-width:none}
-.cat-grid::-webkit-scrollbar{display:none}
-.cat-card{flex-shrink:0;position:relative;border-radius:20px;overflow:hidden;cursor:pointer;width:66px;height:92px;border:0.5px solid rgba(0,0,0,.07);transition:transform .18s;background:#fff}
-.cat-card:hover{transform:scale(1.05)}
+.cat-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(110px,1fr));gap:10px}
+.cat-card{position:relative;border-radius:20px;overflow:hidden;cursor:pointer;aspect-ratio:2/3;border:0.5px solid rgba(0,0,0,.07);transition:transform .18s;background:#fff}
+.cat-card:hover{transform:scale(1.03)}
 .cat-card img{width:100%;height:100%;object-fit:cover;display:block}
-.cat-card-label{position:absolute;inset:0;background:linear-gradient(transparent 36%,rgba(0,0,0,.72));display:flex;align-items:flex-end;justify-content:center;padding-bottom:7px}
-.cat-card-label span{color:#fff;font-family:var(--font-body);font-size:9px;font-weight:600;text-align:center;line-height:1.2;padding:0 3px}
-
+.cat-card-label{position:absolute;inset:0;background:linear-gradient(transparent 40%,rgba(0,0,0,.72));display:flex;align-items:flex-end;justify-content:center;padding-bottom:10px}
+.cat-card-label span{color:#fff;font-family:var(--font-body);font-size:12px;font-weight:600;text-align:center;line-height:1.2;padding:0 6px}
 .prod-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(170px,1fr));gap:14px}
 .prod-card{background:#fff;border-radius:12px;box-shadow:var(--shadow-sm);overflow:hidden;display:flex;flex-direction:column;transition:all .22s;border:1px solid var(--border)}
 .prod-card:hover{transform:translateY(-3px);box-shadow:var(--shadow)}
@@ -517,7 +515,7 @@ tr:hover td{background:#fafcfa}
   .hero-cta-row{flex-direction:column;align-items:center}
   .hero-cta-row .btn-primary,.hero-cta-row .btn-ghost{width:100%;max-width:290px;justify-content:center}
  .prod-grid{grid-template-columns:1fr 1fr;gap:9px}
-  .cat-card{width:54px;height:76px;border-radius:16px}
+ .cat-grid{grid-template-columns:repeat(4,1fr);gap:8px}
   .cart-panel{width:100vw}
   .modal-overlay{padding:10px}
   .modal-box{border-radius:14px;max-height:96vh}
@@ -1124,11 +1122,7 @@ function BuyerCatalog({ products, categories, currentUser, settings, onNewOrder,
       </div>
     ))}
   </div>
-  <div style={{display:"flex",gap:7,paddingBottom:10,paddingTop:8,overflowX:"auto",whiteSpace:"nowrap",scrollbarWidth:"none"}}>
-    {catNames.map(c=>(
-      <button key={c} className={`pill${activeCat===c?" active":""}`} onClick={()=>setActiveCat(c)} style={{flexShrink:0}}>{c}</button>
-    ))}
-  </div>
+ 
 </div>
 
         {/* Products grid */}
