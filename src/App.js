@@ -73,9 +73,15 @@ const SEED_PRODUCTS = [
   { id:"p12", name:"Oleo de Girassol",    sub:"Bidon 20L",     category:"Oleos",       costPrice:16000, sellingPrice:22000, stock:true, img:"https://images.unsplash.com/photo-1620706857370-e1b9770e8bb1?w=400&q=80", desc:"Óleo de girassol refinado, bidão 20L." },
 ];
 const SEED_CATEGORIES = [
-  { id:"c1", name:"Arroz" }, { id:"c2", name:"Carnes" }, { id:"c3", name:"Legumes" },
-  { id:"c4", name:"Peixe" }, { id:"c5", name:"Farinhas" }, { id:"c6", name:"Condimentos" },
-  { id:"c7", name:"Oleos" }, { id:"c8", name:"Leguminosas" }, { id:"c9", name:"Bebidas" },
+  { id:"c1", name:"Arroz",       img:"https://images.unsplash.com/photo-1586201375761-83865001e31c?w=200&q=80" },
+  { id:"c2", name:"Carnes",      img:"https://images.unsplash.com/photo-1558030006-450675393462?w=200&q=80" },
+  { id:"c3", name:"Legumes",     img:"https://images.unsplash.com/photo-1607305387299-a3d9611cd469?w=200&q=80" },
+  { id:"c4", name:"Peixe",       img:"https://images.unsplash.com/photo-1519708227418-c8fd9a32b7a2?w=200&q=80" },
+  { id:"c5", name:"Farinhas",    img:"https://images.unsplash.com/photo-1574323347407-f5e1ad6d020b?w=200&q=80" },
+  { id:"c6", name:"Condimentos", img:"https://images.unsplash.com/photo-1518110925495-5fe2fda0442c?w=200&q=80" },
+  { id:"c7", name:"Oleos",       img:"https://images.unsplash.com/photo-1474979266404-7eaacbcd87c5?w=200&q=80" },
+  { id:"c8", name:"Leguminosas", img:"https://images.unsplash.com/photo-1619566636858-adf3ef46400b?w=200&q=80" },
+  { id:"c9", name:"Bebidas",     img:"https://images.unsplash.com/photo-1447933601403-0c6688de566e?w=200&q=80" },
 ];
 const SEED_PARTNERS = [
   { id:"pa1", name:"Fazenda Angola", type:"Produtor", logo:"https://images.unsplash.com/photo-1464226184884-fa280b87c399?w=200&q=80", desc:"Arroz e cereais" },
@@ -209,10 +215,13 @@ body{font-family:var(--font-body);background:var(--off-white);color:var(--ink);-
 .price-hidden{display:inline-flex;align-items:center;gap:5px;background:var(--orange-pale);border:1px solid #fcd9bc;border-radius:100px;padding:3px 10px;font-size:11px;font-weight:700;color:var(--orange-dark);cursor:pointer}
 .price-hidden:hover{background:#fde8d5}
 
-.cat-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(110px,1fr));gap:10px}
-.cat-card{border-radius:10px;overflow:hidden;cursor:pointer;box-shadow:var(--shadow-sm);transition:all .22s;background:#fff;border:1px solid var(--border)}
-.cat-card:hover{transform:translateY(-3px);box-shadow:var(--shadow)}
-.cat-card-label{padding:7px 8px;font-family:var(--font-body);font-weight:700;font-size:12px;color:var(--ink);text-align:center}
+.cat-grid{display:flex;gap:9px;overflow-x:auto;padding-bottom:4px;scrollbar-width:none}
+.cat-grid::-webkit-scrollbar{display:none}
+.cat-card{flex-shrink:0;position:relative;border-radius:20px;overflow:hidden;cursor:pointer;width:66px;height:92px;border:0.5px solid rgba(0,0,0,.07);transition:transform .18s;background:#fff}
+.cat-card:hover{transform:scale(1.05)}
+.cat-card img{width:100%;height:100%;object-fit:cover;display:block}
+.cat-card-label{position:absolute;inset:0;background:linear-gradient(transparent 36%,rgba(0,0,0,.72));display:flex;align-items:flex-end;justify-content:center;padding-bottom:7px}
+.cat-card-label span{color:#fff;font-family:var(--font-body);font-size:9px;font-weight:600;text-align:center;line-height:1.2;padding:0 3px}
 
 .prod-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(170px,1fr));gap:14px}
 .prod-card{background:#fff;border-radius:12px;box-shadow:var(--shadow-sm);overflow:hidden;display:flex;flex-direction:column;transition:all .22s;border:1px solid var(--border)}
@@ -507,7 +516,8 @@ tr:hover td{background:#fafcfa}
   .hero-title{font-size:clamp(22px,7vw,32px) !important}
   .hero-cta-row{flex-direction:column;align-items:center}
   .hero-cta-row .btn-primary,.hero-cta-row .btn-ghost{width:100%;max-width:290px;justify-content:center}
-  .prod-grid{grid-template-columns:1fr 1fr;gap:9px}
+ .prod-grid{grid-template-columns:1fr 1fr;gap:9px}
+  .cat-card{width:54px;height:76px;border-radius:16px}
   .cart-panel{width:100vw}
   .modal-overlay{padding:10px}
   .modal-box{border-radius:14px;max-height:96vh}
@@ -1104,14 +1114,22 @@ function BuyerCatalog({ products, categories, currentUser, settings, onNewOrder,
           </div>
         )}
 
-        {/* Category pills */}
-        <div style={{background:"#fff",borderBottom:"1px solid var(--border)",padding:"10px 16px",overflowX:"auto",whiteSpace:"nowrap"}}>
-          <div style={{display:"flex",gap:7,paddingBottom:2}}>
-            {catNames.map(c=>(
-              <button key={c} className={`pill${activeCat===c?" active":""}`} onClick={()=>setActiveCat(c)} style={{flexShrink:0}}>{c}</button>
-            ))}
-          </div>
-        </div>
+        {/* E4 Photo Category Pills */}
+<div style={{background:"#fff",borderBottom:"1px solid var(--border)",padding:"10px 16px 0"}}>
+  <div className="cat-grid">
+    {categories.map(c=>(
+      <div key={c.id} className="cat-card" onClick={()=>setActiveCat(c.name)}>
+        <img src={c.img||"https://images.unsplash.com/photo-1542838132-92c53300491e?w=200&q=70"} alt={c.name} onError={e=>{e.target.src="https://images.unsplash.com/photo-1542838132-92c53300491e?w=200&q=70";}} />
+        <div className="cat-card-label"><span>{c.name}</span></div>
+      </div>
+    ))}
+  </div>
+  <div style={{display:"flex",gap:7,paddingBottom:10,paddingTop:8,overflowX:"auto",whiteSpace:"nowrap",scrollbarWidth:"none"}}>
+    {catNames.map(c=>(
+      <button key={c} className={`pill${activeCat===c?" active":""}`} onClick={()=>setActiveCat(c)} style={{flexShrink:0}}>{c}</button>
+    ))}
+  </div>
+</div>
 
         {/* Products grid */}
         <div style={{padding:"16px 16px 0",maxWidth:1200,margin:"0 auto"}}>
