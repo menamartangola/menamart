@@ -1047,7 +1047,7 @@ function BuyerCatalog({ products, categories, currentUser, settings, onNewOrder,
 
   const creditApproved=(settings?.creditClients||[]).includes(currentUser?.id||currentUser?._id);
   const acceptedMethods=(settings?.acceptedMethods||["on_delivery"]).filter(m=>CREDIT_METHODS.includes(m)?creditApproved:true);
-  const catNames=["Todos",...categories.map(c=>c.name)];
+
 
   const filtered=useMemo(()=>{
     const q=search.trim().toLowerCase();
